@@ -22,3 +22,9 @@ canvas {
     align-items: center;
     display: flex;
 }
+
+#warning {
+    position: absolute;
+    top: 100px;
+    left: 100px;
+}
