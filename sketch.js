@@ -53,6 +53,7 @@ function sketch_idnameofdiv(p) {
     p.setup = function () {
         p.noStroke();
         p.background(200);
+        p.cursor('cursor.png');
 
         // initialize total heart pixel size to use in positioning next hearts.
         heartOutline.forEach(el => {
@@ -97,18 +98,20 @@ function sketch_idnameofdiv(p) {
                 let currentHeartY = (heartPxWidth * REAL_PIXEL_SIZE * ix) + (HEART_SPACING * ix);
                 let currentHeartX = (heartPxHeight * REAL_PIXEL_SIZE * iy) + (HEART_SPACING * iy);
                 let heartPosition = p.createVector(currentHeartX, currentHeartY);
-                drawHeart(heartPosition, heartClicked, glitchCoordinates);
+                drawHeart(heartPosition, heartClicked, glitchCoordinates, ix, iy);
             }
         }
 
     }
 
-    drawHeart = function(heartPosition, heartClicked, glitchCoordinates) {
+    drawHeart = function(heartPosition, heartClicked, glitchCoordinates, ix, iy) {
 
         let localGlitchCoordinates;
         if (heartClicked) {
             localGlitchCoordinates = _.cloneDeep(glitchCoordinates);
         }
+
+        let glitchTriggeredForThisHeart = false;
 
         for (let ix = 0; ix < heartOutline.length; ix++) {
             p.fill(0);
@@ -128,8 +131,13 @@ function sketch_idnameofdiv(p) {
             }
 
             if (shouldTriggerGlitch) {
-                let yCoef = heartPosition.y % 2 == 0 ? -1 : 1;
-                let xCoef = heartPosition.x % 2 == 0 ? -1 : 1;
+                glitchTriggeredForThisHeart = true;
+                // let yCoef = heartPosition.y % 20 == 0 ? -1 : 1;
+                // let xCoef = heartPosition.x % 20 == 0 ? -1 : 1;
+
+                let yCoef = iy % 2 == 0 ? -1 : 1;
+                let xCoef = ix % 2 == 0 ? -1 : 1;
+
                 // try to move each big pixel by at most one position on x and one on y axis.
                 p.rect((el.y - yCoef) * REAL_PIXEL_SIZE + heartPosition.y,
                     (el.x - xCoef) * REAL_PIXEL_SIZE + heartPosition.x,
@@ -140,17 +148,38 @@ function sketch_idnameofdiv(p) {
                     el.x * REAL_PIXEL_SIZE + heartPosition.x,
                     REAL_PIXEL_SIZE,
                     REAL_PIXEL_SIZE);
-
-                // draw heart blick.
-                p.fill(255);
-                for (let ix = 0; ix < heartBlick.length; ix++) {
-                    let el = heartBlick[ix];
-                    p.rect(el.y * REAL_PIXEL_SIZE + heartPosition.y,
-                        el.x * REAL_PIXEL_SIZE + heartPosition.x,
-                        REAL_PIXEL_SIZE,
-                        REAL_PIXEL_SIZE);
-                }
             }
+        }
+
+
+        // draw blick.
+        p.fill(255);
+        if (!glitchTriggeredForThisHeart) {
+            // draw heart blick.
+            for (let ix = 0; ix < heartBlick.length; ix++) {
+                let el = heartBlick[ix];
+                p.rect(el.y * REAL_PIXEL_SIZE + heartPosition.y,
+                    el.x * REAL_PIXEL_SIZE + heartPosition.x,
+                    REAL_PIXEL_SIZE,
+                    REAL_PIXEL_SIZE);
+            }
+        } else {
+            // p.fill(130);
+
+            let yCoef = iy % 2 == 0 ? -2 : 2;
+            let xCoef = ix % 2 == 0 ? -2 : 2;
+            let el = heartBlick[2];
+            p.rect((el.y + yCoef) * REAL_PIXEL_SIZE + heartPosition.y,
+                (el.x + xCoef) * REAL_PIXEL_SIZE + heartPosition.x,
+                REAL_PIXEL_SIZE,
+                REAL_PIXEL_SIZE);
+
+            el = heartBlick[1];
+            p.rect((el.y + xCoef) * REAL_PIXEL_SIZE + heartPosition.y,
+                (el.x + yCoef) * REAL_PIXEL_SIZE + heartPosition.x,
+                REAL_PIXEL_SIZE,
+                REAL_PIXEL_SIZE);
+
         }
 
 
